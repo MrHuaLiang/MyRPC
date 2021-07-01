@@ -1,9 +1,8 @@
 package com.mrhualiang.rpc.server;
 
 import com.mrhualiang.rpc.annotation.RpcService;
-import com.mrhualiang.rpc.config.*;
+import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.register.IServiceRegister;
-import com.mrhualiang.rpc.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,9 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
 
     @Resource
     private ZkConfig zkConfig;
+
+    @Value("${server.ip}")
+    private String ip;
 
     @Value("${server.port}")
     private String port;
@@ -139,7 +141,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
             //将接口的类名和对应的实例bean的映射关系保存起来
             beanMappings.put(interfaceClass.getName(), bean);
             //注册实例到zk
-            registerCenter.register(serviceName, IPUtil.getLocalHost(), Integer.parseInt(port));
+            registerCenter.register(serviceName, ip, Integer.parseInt(port));
         }
     }
 }

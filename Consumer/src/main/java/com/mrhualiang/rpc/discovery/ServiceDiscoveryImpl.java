@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc.discovery;
 
+import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import com.mrhualiang.rpc.config.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     {   // 通过curator连接zk
         curatorFramework = CuratorFrameworkFactory.builder()
-                .connectString("121.199.175.221:2181")
+                .connectString("121.199.175.227:2181")
                 .sessionTimeoutMs(10000)
                 .retryPolicy(new ExponentialBackoffRetry(1000, 10)).build();
         //启动
@@ -48,12 +48,12 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     public String discover(String serviceName) {
         //根据serviceName获取对应的path
         String nodePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
+        log.info("从ZooKeeper中发现服务");
         try {
             serviceAddresses = curatorFramework.getChildren().forPath(nodePath);
             addServiceAddress(serviceAddresses, serviceName);
             //动态发现服务节点变化，需要注册监听
             registerWatcher(nodePath, serviceName);
-            System.out.println("获取服务:" + serviceName + "的服务地址:" + serviceMap.get(serviceName));
         } catch (Exception e) {
             log.warn(e.getMessage());
         }
@@ -80,7 +80,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         try {
             pathChildrenCache.start();
         } catch (Exception e) {
-            throw new RuntimeException("监听节点变化异常！", e);
+            log.info("监听节点变化异常,原因是{}",e.getMessage());
         }
     }
 

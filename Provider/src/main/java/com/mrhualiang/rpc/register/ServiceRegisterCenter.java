@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc.register;
 
+import com.mrhualiang.rpc.config.ZkConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -7,7 +8,6 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.mrhualiang.rpc.config.*;
 
 @Component
 @Slf4j

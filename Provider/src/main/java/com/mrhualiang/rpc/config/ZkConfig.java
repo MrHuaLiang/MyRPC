@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ZkConfig {
+
     @Value("${Zk.ip}")
     public String ZK_IP;
 
@@ -19,4 +20,5 @@ public class ZkConfig {
 
     @Value("${Zk.defaultmsg}")
     public String DEFAULT_MSG;
+
 }
