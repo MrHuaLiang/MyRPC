@@ -36,10 +36,17 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
     @Autowired
     private IServiceRegister registerCenter;
 
-    //key 为对应的接口类名，value 为具体的实例
+    /**
+     * @key 对应的接口类名
+     * @value 具体的实例
+     */
     private Map<String, Object> beanMappings = new HashMap<>();
 
-    //当rpc server端初始化完成后,就会开启监听 这里也可以改成Socket调用
+
+    /**
+     * 开启监听
+     * @throws Exception
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         //nettyRpc();
@@ -108,17 +115,21 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
                 try {
                     serverSocket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("socket关闭异常,原因是{}",e.getMessage());
                 }
             }
         }
     }
 
+    /**
+     * 获取添加了RegisterService的注解的服务，将其注册到zookeeper
+     * @param context
+     */
     @Override
     public void setApplicationContext(ApplicationContext context){
         //从spring上下文中获取添加了RegisterService的注解的bean
         String[] beanNames = context.getBeanNamesForAnnotation(RpcService.class);
-        log.info("从spring上下文中获取添加了RegisterService的注解的bean,数量为{}",beanNames.length);
+        log.info("从spring上下文中获取添加了RegisterService的注解的服务,数量为{}",beanNames.length);
         for (String beanName : beanNames) {
             Object bean = context.getBean(beanName);
             RpcService annotation = bean.getClass().getAnnotation(RpcService.class);

@@ -31,7 +31,12 @@ public class ServiceRegisterCenter implements IServiceRegister {
         curatorFramework.start();
     }
 
-    //实现注册方法,将对应的服务名称和服务地址注册到zk上  serviceAddress--- ip : port
+    /**
+     * 向ZooKeeper中注册服务
+     * @param serviceName 服务名称
+     * @param serviceIp   IP
+     * @param port        端口
+     */
     @Override
     public void register(String serviceName, String serviceIp, int port) {
         log.info("ZooKeeper地址为{}", zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT);
@@ -48,7 +53,7 @@ public class ServiceRegisterCenter implements IServiceRegister {
             String zkNode = curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(serviceAddress, "0".getBytes());
             log.info(serviceName + "服务,地址:" + serviceAddress + " 注册成功:" + zkNode);
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            log.warn("注册服务发生异常,原因是{}",e.getMessage());
         }
     }
 }

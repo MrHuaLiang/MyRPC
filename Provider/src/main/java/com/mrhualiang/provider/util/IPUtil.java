@@ -1,7 +1,9 @@
 package com.mrhualiang.provider.util;
 
+import lombok.extern.slf4j.Slf4j;
 import java.net.InetAddress;
 
+@Slf4j
 public class IPUtil {
 
 
@@ -12,7 +14,7 @@ public class IPUtil {
         try {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (Exception e) {
-            System.out.println("获取本机ip失败");
+            log.info("获取本机IP失败,返回127.0.0.1");
             return "127.0.0.1";
         }
     }

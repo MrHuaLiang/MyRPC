@@ -23,25 +23,28 @@ public class RpcServerHandler implements Runnable {
 
     @Override
     public void run() {
+        log.info("线程池开始处理RPC请求");
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
 
         try {
             ois = new ObjectInputStream(this.socket.getInputStream());
             RpcRequest rpcRequest = (RpcRequest)ois.readObject();
+            log.info("开始调用相应方法");
             Object result = this.invoke(rpcRequest);
+            log.info("方法调用完成,返回结果");
             oos = new ObjectOutputStream(this.socket.getOutputStream());
             oos.writeObject(result);
             oos.flush();
         } catch (Exception var13) {
-            var13.printStackTrace();
+            log.warn("处理请求发生异常,原因是{}",var13.getMessage());
         } finally {
             if (oos != null) {
                 try {
                     ois.close();
                     oos.close();
                 } catch (IOException var12) {
-                    var12.printStackTrace();
+                    log.warn("IO流关闭发生异常,原因是{}",var12.getMessage());
                 }
             }
 
@@ -75,8 +78,8 @@ public class RpcServerHandler implements Runnable {
             response.setResult(result);
         } catch (Exception e) {
             response.setCode("400");
-            response.setMsg("请求失败");
-            log.info("请求失败");
+            response.setMsg("请求异常");
+            log.info("请求一场,原因是{}",e.getMessage());
         }
 
         return response;
