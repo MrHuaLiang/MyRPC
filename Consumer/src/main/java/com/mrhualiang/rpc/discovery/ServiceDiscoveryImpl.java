@@ -55,7 +55,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             //动态发现服务节点变化，需要注册监听
             registerWatcher(nodePath, serviceName);
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            log.warn("服务发现异常,原因是{}",e.getMessage());
         }
         return loadBalance.doSelect(serviceMap.get(serviceName));
     }

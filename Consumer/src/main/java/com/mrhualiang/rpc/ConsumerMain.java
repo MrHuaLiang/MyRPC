@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc;
 
+import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import com.mrhualiang.rpc.loadBalance.RandomLoadBalance;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,7 +11,8 @@ public class ConsumerMain {
 
     public static void main(String[] args) {
         ApplicationContext ac = SpringApplication.run(ConsumerMain.class, args);
-        RandomLoadBalance bean = ac.getBean(RandomLoadBalance.class);
+        LoadBalance bean = ac.getBean(LoadBalance.class);
+        System.out.println(bean);
     }
 
 }
