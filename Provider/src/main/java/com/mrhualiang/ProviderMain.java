@@ -1,0 +1,19 @@
+package com.mrhualiang;
+
+import com.mrhualiang.provider.server.ZkRpcServer;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+
+@SpringBootApplication
+@ComponentScan(basePackages = "com.mrhualiang.provider.*")
+@Slf4j
+public class ProviderMain {
+    public static void main(String[] args) {
+        ConfigurableApplicationContext run = SpringApplication.run(ProviderMain.class, args);
+        run.getBean(ZkRpcServer.class);
+        log.info("容器启动完成");
+    }
+}
