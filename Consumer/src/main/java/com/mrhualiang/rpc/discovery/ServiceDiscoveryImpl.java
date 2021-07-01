@@ -1,6 +1,5 @@
 package com.mrhualiang.rpc.discovery;
 
-import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import com.mrhualiang.rpc.config.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private CuratorFramework curatorFramework;
 
     @Autowired
-    @Qualifier("RandomLoadBalance")
+    @Qualifier("randomLoadBalance")
     LoadBalance loadBalance;
 
     @Autowired

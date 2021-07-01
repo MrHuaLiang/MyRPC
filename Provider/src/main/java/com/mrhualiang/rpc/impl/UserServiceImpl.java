@@ -1,8 +1,8 @@
-package com.mrhualiang.provider.impl;
+package com.mrhualiang.rpc.impl;
 
-import com.mrhualiang.api.UserService;
-import com.mrhualiang.api.domain.User;
-import com.mrhualiang.provider.annotation.RpcService;
+import com.mrhualiang.rpc.service.UserService;
+import com.mrhualiang.rpc.annotation.RpcService;
+import com.mrhualiang.rpc.domain.User;
 
 @RpcService(interfaceClass = UserService.class,serviceName = "UserService")
 public class UserServiceImpl implements UserService {

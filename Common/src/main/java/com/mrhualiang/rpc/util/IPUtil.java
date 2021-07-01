@@ -1,4 +1,4 @@
-package com.mrhualiang.provider.util;
+package com.mrhualiang.rpc.util;
 
 import lombok.extern.slf4j.Slf4j;
 import java.net.InetAddress;

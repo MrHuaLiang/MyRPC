@@ -1,7 +1,7 @@
-package com.mrhualiang.provider.server;
+package com.mrhualiang.rpc.server;
 
-import com.mrhualiang.api.model.RpcRequest;
-import com.mrhualiang.api.model.RpcResponse;
+import com.mrhualiang.rpc.model.RpcRequest;
+import com.mrhualiang.rpc.model.RpcResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

@@ -1,6 +1,6 @@
-package com.mrhualiang.api;
+package com.mrhualiang.rpc.service;
 
-import com.mrhualiang.api.domain.User;
+import com.mrhualiang.rpc.domain.User;
 
 public interface UserService {
     public void saveUser(User user);

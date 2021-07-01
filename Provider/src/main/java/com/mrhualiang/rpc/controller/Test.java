@@ -1,7 +1,7 @@
-package com.mrhualiang.provider.controller;
+package com.mrhualiang.rpc.controller;
 
-import com.mrhualiang.api.UserService;
-import com.mrhualiang.api.domain.User;
+import com.mrhualiang.rpc.service.UserService;
+import com.mrhualiang.rpc.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

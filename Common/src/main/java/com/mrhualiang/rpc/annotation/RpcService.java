@@ -1,4 +1,4 @@
-package com.mrhualiang.provider.annotation;
+package com.mrhualiang.rpc.annotation;
 
 import org.springframework.stereotype.Component;
 

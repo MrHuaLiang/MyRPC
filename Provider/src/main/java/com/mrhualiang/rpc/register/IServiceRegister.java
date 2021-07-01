@@ -1,6 +1,4 @@
-package com.mrhualiang.provider.register;
-
-import org.springframework.stereotype.Component;
+package com.mrhualiang.rpc.register;
 
 public interface IServiceRegister {
 

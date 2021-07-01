@@ -1,7 +1,7 @@
 package com.mrhualiang.rpc.proxy;
 
-import com.mrhualiang.api.model.RpcRequest;
 import com.mrhualiang.rpc.discovery.ServiceDiscovery;
+import com.mrhualiang.rpc.model.RpcRequest;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

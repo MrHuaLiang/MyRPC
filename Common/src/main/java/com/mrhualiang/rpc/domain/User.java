@@ -1,4 +1,4 @@
-package com.mrhualiang.api.domain;
+package com.mrhualiang.rpc.domain;
 
 import lombok.Data;
 
