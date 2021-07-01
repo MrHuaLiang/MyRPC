@@ -2,12 +2,13 @@ package com.mrhualiang.rpc.loadBalance;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
 
 @Slf4j
-@Component("randomLoadBalance")
+@Service("randomLoadBalance")
 public class RandomLoadBalance implements LoadBalance{
 
     @Override

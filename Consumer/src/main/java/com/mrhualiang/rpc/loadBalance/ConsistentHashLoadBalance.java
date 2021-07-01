@@ -1,9 +1,11 @@
 package com.mrhualiang.rpc.loadBalance;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
-@Component("consistentHashLoadBalance")
+@Service("consistentHashLoadBalance")
 public class ConsistentHashLoadBalance implements LoadBalance {
 
     @Override

@@ -19,18 +19,6 @@ public class ServiceRegisterCenter implements IServiceRegister {
     private CuratorFramework curatorFramework;
 
 
-    {   // 通过curator连接zk
-        curatorFramework = CuratorFrameworkFactory.builder().
-                //定义连接串
-                        connectString("121.199.175.227:2181").
-                // 定义session超时时间
-                        sessionTimeoutMs(10000).
-                //定义重试策略
-                        retryPolicy(new ExponentialBackoffRetry(1000, 10)).build();
-        //启动
-        curatorFramework.start();
-    }
-
     /**
      * 向ZooKeeper中注册服务
      * @param serviceName 服务名称
@@ -41,6 +29,15 @@ public class ServiceRegisterCenter implements IServiceRegister {
     public void register(String serviceName, String serviceIp, int port) {
         log.info("ZooKeeper地址为{}", zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT);
         log.info("向ZooKeeper注册服务");
+        curatorFramework = CuratorFrameworkFactory.builder().
+                //定义连接串
+                        connectString(zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT).
+                // 定义session超时时间
+                        sessionTimeoutMs(Integer.parseInt(zkConfig.SESSION_TIMEOUT)).
+                //定义重试策略
+                        retryPolicy(new ExponentialBackoffRetry(1000, 10)).build();
+        //启动
+        curatorFramework.start();
         //注册相应的服务 注意 zk注册的节点名称需要以/开头
         String servicePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
         try {
