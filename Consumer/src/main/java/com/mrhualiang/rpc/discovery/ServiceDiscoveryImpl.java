@@ -25,7 +25,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
 
     private Map<String, List<String>> serviceMap = new HashMap<>();
 
-    private List<String> serviceAddresses;
+    private List<String> serviceInfo;
 
     private CuratorFramework curatorFramework;
 
@@ -47,10 +47,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             if(serviceMap.get(serviceName) == null){
                 log.info("本地缓存中获取服务信息失败");
                 log.info("尝试从ZooKeeper中获取服务信息,路径为{}", nodePath);
-                serviceAddresses = curatorFramework.getChildren().forPath(nodePath);
+                serviceInfo = curatorFramework.getChildren().forPath(nodePath);
                 log.info("获取服务信息成功,加入本地缓存");
-                addServiceAddress(serviceAddresses, serviceName);
-                log.info(serviceAddresses + "");
+                addServiceInfo(serviceInfo, serviceName);
+                log.info(serviceInfo + "");
             }else{
                 log.info("成功从本地缓存中获取服务信息");
             }
@@ -76,12 +76,12 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
                 if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
                     log.info("服务节点增加,更新本地缓存");
-                    serviceAddresses = curatorFramework.getChildren().forPath(path);
-                    addServiceAddress(serviceAddresses, serviceName);
+                    serviceInfo = curatorFramework.getChildren().forPath(path);
+                    addServiceInfo(serviceInfo, serviceName);
                 }else if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED){
                     log.info("服务节点更新,更新本地缓存");
-                    serviceAddresses = curatorFramework.getChildren().forPath(path);
-                    addServiceAddress(serviceAddresses, serviceName);
+                    serviceInfo = curatorFramework.getChildren().forPath(path);
+                    addServiceInfo(serviceInfo, serviceName);
                 }else{
                     log.info("其他事件,不更新本地缓存");
                 }
@@ -94,11 +94,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
         }
     }
 
-    private void addServiceAddress(List<String> serviceAddresses, String serviceName) {
-        if (!CollectionUtils.isEmpty(serviceAddresses)) {
-            serviceMap.put(serviceName, serviceAddresses);
+    private void addServiceInfo(List<String> serviceInfo, String serviceName) {
+        if (!CollectionUtils.isEmpty(serviceInfo)) {
+            serviceMap.put(serviceName, serviceInfo);
         } else {
-            log.error("找不到服务{}", serviceName);
+            log.error("没有可用服务{}", serviceName);
             log.info(serviceMap.get(serviceName).get(0));
         }
     }

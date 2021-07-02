@@ -9,7 +9,7 @@ import java.util.List;
 public class ConsistentHashLoadBalance implements LoadBalance {
 
     @Override
-    public String doSelect(List<String> serviceAddresses) {
+    public String doSelect(List<String> serviceInfoList) {
         return "";
     }
 

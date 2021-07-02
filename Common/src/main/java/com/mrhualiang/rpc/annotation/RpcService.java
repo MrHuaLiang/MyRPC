@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc.annotation;
 
+import com.mrhualiang.rpc.model.ServiceInfo;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -15,4 +16,10 @@ public @interface RpcService {
     Class interfaceClass() ;
 
     String serviceName () ;
+
+    String ip () ;
+
+    String port();
+
+    String weight();
 }

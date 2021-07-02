@@ -1,7 +1,7 @@
 package com.mrhualiang.rpc.server;
 /**
  * @author zhuhualiang
- *  服务注册,socket监听
+ * 服务注册,socket监听
  */
 
 import com.mrhualiang.rpc.annotation.RpcService;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -143,11 +144,14 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
             //获取注解属性
             Class interfaceClass = annotation.interfaceClass();
             String serviceName = annotation.serviceName();
+            String serviceIp = annotation.ip();
+            String servicePort = annotation.port();
+            String serviceWeight = annotation.weight();
             //将接口的类名和对应的实例bean的映射关系保存起来
             log.info("根据接口名从容器中获得Bean(实现类对象)并放入本地Map中");
             beanMappings.put(interfaceClass.getName(), bean);
             //注册实例到zk
-            registerCenter.register(serviceName, ip, Integer.parseInt(port));
+            registerCenter.register(serviceName, serviceIp, servicePort, serviceWeight);
         }
     }
 }
