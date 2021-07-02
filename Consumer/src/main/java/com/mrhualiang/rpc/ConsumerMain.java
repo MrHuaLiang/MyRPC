@@ -24,7 +24,7 @@ public class ConsumerMain {
         user.setAge(12);
         user.setName("chenpp");
         userService.saveUser(user);
-//        User user1 = userService.getUserById(1);
+        User user1 = userService.getUserById(1);
     }
 
 }

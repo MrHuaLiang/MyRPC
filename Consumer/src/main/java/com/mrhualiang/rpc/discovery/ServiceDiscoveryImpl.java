@@ -49,15 +49,23 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     public String discover(String serviceName) {
         //根据serviceName获取对应的path
         String nodePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
-        log.info("尝试从ZooKeeper中发现服务,路径为{}",nodePath);
+
         try {
-            serviceAddresses = curatorFramework.getChildren().forPath(nodePath);
-            log.info("获取服务信息成功,尝试加入本地缓存");
-            addServiceAddress(serviceAddresses, serviceName);
+            log.info("尝试从本地缓存中获取服务信息");
+            if(serviceMap.get(serviceName) == null){
+                log.info("本地缓存中获取服务信息失败");
+                log.info("尝试从ZooKeeper中获取服务信息,路径为{}", nodePath);
+                serviceAddresses = curatorFramework.getChildren().forPath(nodePath);
+                log.info("获取服务信息成功,加入本地缓存");
+                addServiceAddress(serviceAddresses, serviceName);
+                log.info(serviceAddresses + "");
+            }else{
+                log.info("成功从本地缓存中获取服务信息");
+            }
             //动态发现服务节点变化，需要注册监听
             registerWatcher(nodePath, serviceName);
         } catch (Exception e) {
-            log.warn("服务发现异常,原因是{}",e.getMessage());
+            log.warn("服务发现异常,原因是{}", e.getMessage());
         }
         return loadBalance.doSelect(serviceMap.get(serviceName));
     }
@@ -77,13 +85,14 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 serviceAddresses = curatorFramework.getChildren().forPath(path);
                 addServiceAddress(serviceAddresses, serviceName);
                 log.info(pathChildrenCacheEvent.getType() + "");
-                log.info("监听到节点:" + path + "变化为:" + serviceAddresses + "   " + System.currentTimeMillis());
+                log.info("监听到节点:" + path + "变化为:" + serviceAddresses);
+                log.info(serviceAddresses + "");
             }
         });
         try {
             pathChildrenCache.start();
         } catch (Exception e) {
-            log.info("监听节点变化异常,原因是{}",e.getMessage());
+            log.info("监听节点变化异常,原因是{}", e.getMessage());
         }
     }
 
