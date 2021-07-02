@@ -27,8 +27,6 @@ public class ServiceRegisterCenter implements IServiceRegister {
      */
     @Override
     public void register(String serviceName, String serviceIp, int port) {
-        log.info("ZooKeeper地址为{}", zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT);
-        log.info("向ZooKeeper注册服务");
         curatorFramework = CuratorFrameworkFactory.builder().
                 //定义连接串
                         connectString(zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT).
@@ -38,6 +36,8 @@ public class ServiceRegisterCenter implements IServiceRegister {
                         retryPolicy(new ExponentialBackoffRetry(1000, 10)).build();
         //启动
         curatorFramework.start();
+        log.info("ZooKeeper地址为{}", zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT);
+        log.info("向ZooKeeper注册服务");
         //注册相应的服务 注意 zk注册的节点名称需要以/开头
         String servicePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
         try {
@@ -48,9 +48,9 @@ public class ServiceRegisterCenter implements IServiceRegister {
             //设置节点的value为对应的服务地址信息(临时节点)
             String serviceAddress = servicePath + "/" + serviceIp + ":" + port;
             String zkNode = curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(serviceAddress, "0".getBytes());
-            log.info(serviceName + "服务,地址:" + serviceAddress + " 注册成功:" + zkNode);
+            log.info("服务名称:{};地址:{}", serviceName, serviceAddress);
         } catch (Exception e) {
-            log.warn("注册服务发生异常,原因是{}",e.getMessage());
+            log.warn("注册服务发生异常,原因是{}", e.getMessage());
         }
     }
 }

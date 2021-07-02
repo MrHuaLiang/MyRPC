@@ -47,6 +47,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
 
     /**
      * 开启监听
+     *
      * @throws Exception
      */
     @Override
@@ -105,7 +106,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
             serverSocket = new ServerSocket(Integer.parseInt(port));
             while (true) {
                 //监听端口，是个阻塞的方法
-                log.info("开始监听{}端口",port);
+                log.info("开始监听{}端口", port);
                 Socket socket = serverSocket.accept();
                 //处理rpc请求，这里使用线程池来处理
                 executor.submit(new RpcServerHandler(beanMappings, socket));
@@ -117,7 +118,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
                 try {
                     serverSocket.close();
                 } catch (IOException e) {
-                    log.warn("socket关闭异常,原因是{}",e.getMessage());
+                    log.warn("socket关闭异常,原因是{}", e.getMessage());
                 }
             }
         }
@@ -125,13 +126,14 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
 
     /**
      * 获取添加了RegisterService的注解的服务，将其注册到zookeeper
+     *
      * @param context
      */
     @Override
-    public void setApplicationContext(ApplicationContext context){
+    public void setApplicationContext(ApplicationContext context) {
         //从spring上下文中获取添加了RegisterService的注解的bean
         String[] beanNames = context.getBeanNamesForAnnotation(RpcService.class);
-        log.info("从spring上下文中获取添加了RegisterService的注解的服务,数量为{}",beanNames.length);
+        log.info("从spring上下文中获取添加了RegisterService的注解的服务,数量为{}", beanNames.length);
         for (String beanName : beanNames) {
             Object bean = context.getBean(beanName);
             RpcService annotation = bean.getClass().getAnnotation(RpcService.class);
@@ -139,6 +141,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
             Class interfaceClass = annotation.interfaceClass();
             String serviceName = annotation.serviceName();
             //将接口的类名和对应的实例bean的映射关系保存起来
+            log.info("根据接口名从容器中获得Bean(实现类对象)并放入本地Map中");
             beanMappings.put(interfaceClass.getName(), bean);
             //注册实例到zk
             registerCenter.register(serviceName, ip, Integer.parseInt(port));

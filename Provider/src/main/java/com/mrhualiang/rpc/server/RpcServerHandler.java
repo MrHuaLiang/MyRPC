@@ -30,9 +30,7 @@ public class RpcServerHandler implements Runnable {
         try {
             ois = new ObjectInputStream(this.socket.getInputStream());
             RpcRequest rpcRequest = (RpcRequest)ois.readObject();
-            log.info("开始调用相应方法");
             Object result = this.invoke(rpcRequest);
-            log.info("方法调用完成,返回结果");
             oos = new ObjectOutputStream(this.socket.getOutputStream());
             oos.writeObject(result);
             oos.flush();
@@ -57,9 +55,9 @@ public class RpcServerHandler implements Runnable {
         Object result = null;
         RpcResponse<Object> response = new RpcResponse<>();
         try {
-            log.info(className);
             Class<?> clazz = Class.forName(className);
             Object[] parameters = rpcRequest.getArgs();
+            log.info("从本地Map中获取服务Bean对象,开始调用相应的方法");
             Object serviceInstance = this.serviceMap.get(clazz.getName());
             if (parameters == null) {
                 Method method = clazz.getMethod(rpcRequest.getMethodName());
@@ -80,9 +78,9 @@ public class RpcServerHandler implements Runnable {
         } catch (Exception e) {
             response.setCode("400");
             response.setMsg("请求异常");
-            log.info("请求一场,原因是{}",e.getMessage());
+            log.info("请求异常,原因是{}",e.getMessage());
         }
-
+        log.info("方法调用结束,返回结果");
         return response;
     }
 }

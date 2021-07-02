@@ -3,17 +3,20 @@ package com.mrhualiang.rpc.impl;
 import com.mrhualiang.rpc.service.UserService;
 import com.mrhualiang.rpc.annotation.RpcService;
 import com.mrhualiang.rpc.domain.User;
+import lombok.extern.slf4j.Slf4j;
 
 @RpcService(interfaceClass = UserService.class,serviceName = "UserService")
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
-        System.out.println("保存User对象:" + user.getName() + "," + user.getAge());
+        log.info("调用了saveUser方法");
     }
 
     @Override
     public User getUserById(Integer id) {
+        log.info("调用了getUserById方法");
         User user = new User();
         user.setId(1);
         user.setName("Caroline");

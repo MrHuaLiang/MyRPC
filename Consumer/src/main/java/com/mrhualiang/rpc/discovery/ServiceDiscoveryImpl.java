@@ -52,7 +52,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         log.info("尝试从ZooKeeper中发现服务,路径为{}",nodePath);
         try {
             serviceAddresses = curatorFramework.getChildren().forPath(nodePath);
-            log.info("获取服务信息成功,尝试加入本地缓存中");
+            log.info("获取服务信息成功,尝试加入本地缓存");
             addServiceAddress(serviceAddresses, serviceName);
             //动态发现服务节点变化，需要注册监听
             registerWatcher(nodePath, serviceName);
@@ -76,7 +76,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
                 serviceAddresses = curatorFramework.getChildren().forPath(path);
                 addServiceAddress(serviceAddresses, serviceName);
-                log.info("监听到节点:" + path + "变化为:" + serviceAddresses + "....");
+                log.info(pathChildrenCacheEvent.getType() + "");
+                log.info("监听到节点:" + path + "变化为:" + serviceAddresses + "   " + System.currentTimeMillis());
             }
         });
         try {

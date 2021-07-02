@@ -6,11 +6,13 @@ import com.mrhualiang.rpc.domain.User;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import com.mrhualiang.rpc.proxy.RpcProxy;
 import com.mrhualiang.rpc.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
+@Slf4j
 public class ConsumerMain {
 
     public static void main(String[] args) {
@@ -18,12 +20,11 @@ public class ConsumerMain {
         ServiceDiscovery serviceDiscovery = (ServiceDiscoveryImpl) ac.getBean(ServiceDiscovery.class);
         //由于rpc-server-api里只有实体类和接口类，想要实例化只能通过代理来实现
         UserService userService = RpcProxy.getInstance(UserService.class, "UserService", serviceDiscovery);
-//        User user = new User();
-//        user.setAge(12);
-//        user.setName("chenpp");
-//        userService.saveUser(user);
-        User user1 = userService.getUserById(1);
-        System.out.println("执行getUserById获得返回值:" + user1.getAge());
+        User user = new User();
+        user.setAge(12);
+        user.setName("chenpp");
+        userService.saveUser(user);
+//        User user1 = userService.getUserById(1);
     }
 
 }

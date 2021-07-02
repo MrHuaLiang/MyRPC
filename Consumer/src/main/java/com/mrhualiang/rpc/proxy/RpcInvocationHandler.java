@@ -40,10 +40,12 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     private RpcResponse<Object> handleSocket(RpcRequest rpcRequest) throws IOException, ClassNotFoundException {
         String address = serviceDiscovery.discover(serviceName);
+        log.info("选择的服务地址为{}",address);
         //绑定端口启动netty客户端
         String[] add = address.split(":");
         //通过socket发送RPCRequest给服务端并获取结果返回
-        Socket socket= new Socket(add[0],Integer.parseInt(add[1]));
+        //Socket socket= new Socket(add[0],Integer.parseInt(add[1]));
+        Socket socket= new Socket(add[0],8003);
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         oos.writeObject(rpcRequest);
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
