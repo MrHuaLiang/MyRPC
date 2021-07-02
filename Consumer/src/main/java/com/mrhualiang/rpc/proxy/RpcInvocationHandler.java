@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class RpcInvocationHandler implements InvocationHandler {
@@ -18,6 +19,8 @@ public class RpcInvocationHandler implements InvocationHandler {
     private String serviceName;
 
     private ServiceDiscovery serviceDiscovery;
+
+    private static AtomicInteger id = new AtomicInteger(1);
 
     public RpcInvocationHandler(String serviceName, ServiceDiscovery serviceDiscovery) {
         this.serviceName = serviceName;
@@ -31,11 +34,13 @@ public class RpcInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         //将远程调用需要的接口类、方法名、参数信息封装成RPCRequest
         RpcRequest rpcRequest = new RpcRequest();
+        rpcRequest.setId(id.getAndIncrement());
         rpcRequest.setArgs(args);
         rpcRequest.setClassName(method.getDeclaringClass().getName());
         rpcRequest.setMethodName(method.getName());
         //return handleNetty(rpcRequest);
-        return handleSocket(rpcRequest).getResult();
+        RpcResponse<Object> res = handleSocket(rpcRequest);
+        return res.getResult();
     }
 
     private RpcResponse<Object> handleSocket(RpcRequest rpcRequest) throws IOException, ClassNotFoundException {
@@ -44,7 +49,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         //绑定端口启动netty客户端
         String[] add = address.split(":");
         //通过socket发送RPCRequest给服务端并获取结果返回
-        Socket socket= new Socket(add[0],Integer.parseInt(add[1]));
+        Socket socket = new Socket(add[0],Integer.parseInt(add[1]));
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         oos.writeObject(rpcRequest);
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());

@@ -11,7 +11,5 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class ProviderMain {
     public static void main(String[] args) {
         ConfigurableApplicationContext run = SpringApplication.run(ProviderMain.class, args);
-        run.getBean(ZkRpcServer.class);
-        log.info("容器启动完成");
     }
 }

@@ -30,7 +30,7 @@ public class RpcServerHandler implements Runnable {
         try {
             ois = new ObjectInputStream(this.socket.getInputStream());
             RpcRequest rpcRequest = (RpcRequest)ois.readObject();
-            Object result = this.invoke(rpcRequest);
+            RpcResponse<Object> result = this.invoke(rpcRequest);
             oos = new ObjectOutputStream(this.socket.getOutputStream());
             oos.writeObject(result);
             oos.flush();
@@ -64,7 +64,6 @@ public class RpcServerHandler implements Runnable {
                 result = method.invoke(serviceInstance);
             } else {
                 Class[] types = new Class[parameters.length];
-
                 for(int i = 0; i < parameters.length; ++i) {
                     types[i] = parameters[i].getClass();
                 }
@@ -75,9 +74,11 @@ public class RpcServerHandler implements Runnable {
             response.setCode("200");
             response.setMsg("请求成功");
             response.setResult(result);
+            response.setId(rpcRequest.getId());
         } catch (Exception e) {
             response.setCode("400");
             response.setMsg("请求异常");
+            response.setId(rpcRequest.getId());
             log.info("请求异常,原因是{}",e.getMessage());
         }
         log.info("方法调用结束,返回结果");

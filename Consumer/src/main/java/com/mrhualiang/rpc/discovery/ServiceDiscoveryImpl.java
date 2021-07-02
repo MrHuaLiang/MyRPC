@@ -9,6 +9,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class ServiceDiscoveryImpl implements ServiceDiscovery {
+public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean {
 
     private Map<String, List<String>> serviceMap = new HashMap<>();
 
@@ -35,15 +36,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     @Autowired
     private ZkConfig zkConfig;
 
-
-    {   // 通过curator连接zk
-        curatorFramework = CuratorFrameworkFactory.builder()
-                .connectString("121.199.175.227:2181")
-                .sessionTimeoutMs(10000)
-                .retryPolicy(new ExponentialBackoffRetry(1000, 10)).build();
-        //启动
-        curatorFramework.start();
-    }
 
     @Override
     public String discover(String serviceName) {
@@ -82,11 +74,17 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         pathChildrenCache.getListenable().addListener(new PathChildrenCacheListener() {
             @Override
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
-                serviceAddresses = curatorFramework.getChildren().forPath(path);
-                addServiceAddress(serviceAddresses, serviceName);
-                log.info(pathChildrenCacheEvent.getType() + "");
-                log.info("监听到节点:" + path + "变化为:" + serviceAddresses);
-                log.info(serviceAddresses + "");
+                if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
+                    log.info("服务节点增加,更新本地缓存");
+                    serviceAddresses = curatorFramework.getChildren().forPath(path);
+                    addServiceAddress(serviceAddresses, serviceName);
+                }else if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED){
+                    log.info("服务节点更新,更新本地缓存");
+                    serviceAddresses = curatorFramework.getChildren().forPath(path);
+                    addServiceAddress(serviceAddresses, serviceName);
+                }else{
+                    log.info("其他事件,不更新本地缓存");
+                }
             }
         });
         try {
@@ -101,7 +99,21 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             serviceMap.put(serviceName, serviceAddresses);
         } else {
             log.error("找不到服务{}", serviceName);
+            log.info(serviceMap.get(serviceName).get(0));
         }
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        log.info("与ZooKeeper建立链接");
+        curatorFramework = CuratorFrameworkFactory.builder().
+                //定义连接串
+                        connectString(zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT).
+                // 定义session超时时间
+                        sessionTimeoutMs(Integer.parseInt(zkConfig.SESSION_TIMEOUT)).
+                //定义重试策略
+                        retryPolicy(new ExponentialBackoffRetry(1000, 10)).build();
+        //启动
+        curatorFramework.start();
+    }
 }

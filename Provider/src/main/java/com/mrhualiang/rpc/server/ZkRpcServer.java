@@ -1,4 +1,8 @@
 package com.mrhualiang.rpc.server;
+/**
+ * @author zhuhualiang
+ *  服务注册,socket监听
+ */
 
 import com.mrhualiang.rpc.annotation.RpcService;
 import com.mrhualiang.rpc.config.ZkConfig;
@@ -10,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -33,7 +36,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
     @Value("${server.port}")
     private String port;
 
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 
     @Autowired
     private IServiceRegister registerCenter;
