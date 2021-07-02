@@ -1,6 +1,6 @@
 package com.mrhualiang.rpc.loadBalance;
 
-import org.springframework.stereotype.Component;
+import com.mrhualiang.rpc.model.ServiceInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,8 +9,8 @@ import java.util.List;
 public class ConsistentHashLoadBalance implements LoadBalance {
 
     @Override
-    public String doSelect(List<String> serviceInfoList) {
-        return "";
+    public ServiceInfo doSelect(List<ServiceInfo> serviceInfoList) {
+        return null;
     }
 
 }

@@ -2,6 +2,8 @@ package com.mrhualiang.rpc.discovery;
 
 import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
+import com.mrhualiang.rpc.model.ServiceInfo;
+import com.mrhualiang.rpc.util.ConvertUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -18,14 +20,15 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean {
 
-    private Map<String, List<String>> serviceMap = new HashMap<>();
+    private Map<String, List<ServiceInfo>> serviceMap = new HashMap<>();
 
-    private List<String> serviceInfo;
+    private List<ServiceInfo> serviceInfo;
 
     private CuratorFramework curatorFramework;
 
@@ -38,7 +41,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
 
 
     @Override
-    public String discover(String serviceName) {
+    public ServiceInfo discover(String serviceName) {
         //根据serviceName获取对应的path
         String nodePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
 
@@ -47,7 +50,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             if(serviceMap.get(serviceName) == null){
                 log.info("本地缓存中获取服务信息失败");
                 log.info("尝试从ZooKeeper中获取服务信息,路径为{}", nodePath);
-                serviceInfo = curatorFramework.getChildren().forPath(nodePath);
+                serviceInfo = curatorFramework.getChildren().forPath(nodePath).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
+                serviceInfo.forEach(list -> list.setName(serviceName));
                 log.info("获取服务信息成功,加入本地缓存");
                 addServiceInfo(serviceInfo, serviceName);
                 log.info(serviceInfo + "");
@@ -76,11 +80,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
                 if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
                     log.info("服务节点增加,更新本地缓存");
-                    serviceInfo = curatorFramework.getChildren().forPath(path);
+                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
                     addServiceInfo(serviceInfo, serviceName);
                 }else if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED){
                     log.info("服务节点更新,更新本地缓存");
-                    serviceInfo = curatorFramework.getChildren().forPath(path);
+                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());;
                     addServiceInfo(serviceInfo, serviceName);
                 }else{
                     log.info("其他事件,不更新本地缓存");
@@ -94,12 +98,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
         }
     }
 
-    private void addServiceInfo(List<String> serviceInfo, String serviceName) {
+    private void addServiceInfo(List<ServiceInfo> serviceInfo, String serviceName) {
         if (!CollectionUtils.isEmpty(serviceInfo)) {
             serviceMap.put(serviceName, serviceInfo);
         } else {
             log.error("没有可用服务{}", serviceName);
-            log.info(serviceMap.get(serviceName).get(0));
         }
     }
 

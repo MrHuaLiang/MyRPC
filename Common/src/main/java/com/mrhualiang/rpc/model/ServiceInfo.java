@@ -1,14 +1,18 @@
 package com.mrhualiang.rpc.model;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class ServiceInfo {
+
+    private String name;
 
     private String ip;
 
-    private String port;
+    private Integer port;
 
-    private String weight;
+    private Integer weight;
 
 }

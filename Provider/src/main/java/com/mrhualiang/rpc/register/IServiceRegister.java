@@ -1,6 +1,8 @@
 package com.mrhualiang.rpc.register;
 
+import com.mrhualiang.rpc.model.ServiceInfo;
+
 public interface IServiceRegister {
 
-    void register(String serviceName, String serviceIp, String servicePort, String serviceWeight);
+    void register(ServiceInfo serviceInfo);
 }

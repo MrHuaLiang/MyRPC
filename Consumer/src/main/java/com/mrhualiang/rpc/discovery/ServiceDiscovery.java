@@ -1,5 +1,7 @@
 package com.mrhualiang.rpc.discovery;
 
+import com.mrhualiang.rpc.model.ServiceInfo;
+
 public interface ServiceDiscovery {
 
     /**
@@ -8,5 +10,5 @@ public interface ServiceDiscovery {
      * @param serviceName
      * @return
      */
-    String discover(String serviceName);
+    ServiceInfo discover(String serviceName);
 }

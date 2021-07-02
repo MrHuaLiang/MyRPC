@@ -1,31 +1,33 @@
 package com.mrhualiang.rpc.loadBalance;
 
+import com.mrhualiang.rpc.model.ServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Slf4j
-@Component
+@Service("weightRoundBalance")
 public class WeightRoundBalance implements LoadBalance {
 
     private static int index;
 
     @Override
-    public String doSelect(List<String> serviceInfoList) {
+    public ServiceInfo doSelect(List<ServiceInfo> serviceInfoList) {
         if (serviceInfoList == null || serviceInfoList.size() == 0) {
             log.error("服务不可用");
             return null;
         } else if (serviceInfoList.size() == 1) {
             return serviceInfoList.get(0);
         } else {
-            int sumWeight = serviceInfoList.stream().mapToInt(info -> Integer.parseInt(info.split(",")[1])).sum();
+            int sumWeight = serviceInfoList.stream().mapToInt(ServiceInfo::getWeight).sum();
             int num = (index++) % sumWeight;
-            for (String serviceInfo : serviceInfoList) {
-                if (Integer.parseInt(serviceInfo.split(",")[1]) > num) {
+            for (ServiceInfo serviceInfo : serviceInfoList) {
+                if (serviceInfo.getWeight() > num) {
                     return serviceInfo;
                 }
-                num -= Integer.parseInt(serviceInfo.split(",")[1]);
+                num -= serviceInfo.getWeight();
             }
             return null;
         }

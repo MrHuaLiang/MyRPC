@@ -5,7 +5,7 @@ import com.mrhualiang.rpc.annotation.RpcService;
 import com.mrhualiang.rpc.domain.User;
 import lombok.extern.slf4j.Slf4j;
 
-@RpcService(interfaceClass = UserService.class, serviceName = "UserService", ip = "${server.ip}", port = "${Integer.parseInt(server.ip)}", weight = "80")
+@RpcService(interfaceClass = UserService.class, serviceName = "UserService", port = "8001", weight = "80")
 @Slf4j
 public class UserServiceImpl implements UserService {
 

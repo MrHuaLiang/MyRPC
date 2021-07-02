@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc.loadBalance;
 
+import com.mrhualiang.rpc.model.ServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.Random;
 public class RandomLoadBalance implements LoadBalance {
 
     @Override
-    public String doSelect(List<String> serviceInfoList) {
+    public ServiceInfo doSelect(List<ServiceInfo> serviceInfoList) {
         if (serviceInfoList == null || serviceInfoList.size() == 0) {
             log.error("服务不可用");
             return null;

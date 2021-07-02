@@ -6,7 +6,7 @@ import com.mrhualiang.rpc.service.SchoolService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RpcService(interfaceClass = SchoolService.class, serviceName = "SchoolService", ip = "${server.ip}", port = "${Integer.parseInt(server.ip)}", weight = "20")
+@RpcService(interfaceClass = SchoolService.class, serviceName = "SchoolService", port = "8001", weight = "20")
 public class SchoolServiceImpl implements SchoolService {
 
     @Override

@@ -6,7 +6,9 @@ package com.mrhualiang.rpc.server;
 
 import com.mrhualiang.rpc.annotation.RpcService;
 import com.mrhualiang.rpc.config.ZkConfig;
+import com.mrhualiang.rpc.model.ServiceInfo;
 import com.mrhualiang.rpc.register.IServiceRegister;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -133,6 +136,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
      *
      * @param context
      */
+    @SneakyThrows
     @Override
     public void setApplicationContext(ApplicationContext context) {
         //从spring上下文中获取添加了RegisterService的注解的bean
@@ -144,14 +148,18 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
             //获取注解属性
             Class interfaceClass = annotation.interfaceClass();
             String serviceName = annotation.serviceName();
-            String serviceIp = annotation.ip();
             String servicePort = annotation.port();
             String serviceWeight = annotation.weight();
+            ServiceInfo serviceInfo = new ServiceInfo();
+            serviceInfo.setName(serviceName);
+            serviceInfo.setIp(InetAddress.getLocalHost().getHostAddress());
+            serviceInfo.setPort(Integer.parseInt(servicePort));
+            serviceInfo.setWeight(Integer.parseInt(serviceWeight));
             //将接口的类名和对应的实例bean的映射关系保存起来
             log.info("根据接口名从容器中获得Bean(实现类对象)并放入本地Map中");
             beanMappings.put(interfaceClass.getName(), bean);
             //注册实例到zk
-            registerCenter.register(serviceName, serviceIp, servicePort, serviceWeight);
+            registerCenter.register(serviceInfo);
         }
     }
 }
