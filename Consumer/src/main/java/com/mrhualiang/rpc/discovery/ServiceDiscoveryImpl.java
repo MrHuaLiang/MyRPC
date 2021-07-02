@@ -49,9 +49,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     public String discover(String serviceName) {
         //根据serviceName获取对应的path
         String nodePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
-        log.info("从ZooKeeper中发现服务");
+        log.info("尝试从ZooKeeper中发现服务,路径为{}",nodePath);
         try {
             serviceAddresses = curatorFramework.getChildren().forPath(nodePath);
+            log.info("获取服务信息成功,尝试加入本地缓存中");
             addServiceAddress(serviceAddresses, serviceName);
             //动态发现服务节点变化，需要注册监听
             registerWatcher(nodePath, serviceName);

@@ -103,9 +103,9 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
         try {
             //创建socket
             serverSocket = new ServerSocket(Integer.parseInt(port));
-            log.info("开始监听{}端口",port);
             while (true) {
                 //监听端口，是个阻塞的方法
+                log.info("开始监听{}端口",port);
                 Socket socket = serverSocket.accept();
                 //处理rpc请求，这里使用线程池来处理
                 executor.submit(new RpcServerHandler(beanMappings, socket));

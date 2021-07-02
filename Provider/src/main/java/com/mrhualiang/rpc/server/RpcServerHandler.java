@@ -57,6 +57,7 @@ public class RpcServerHandler implements Runnable {
         Object result = null;
         RpcResponse<Object> response = new RpcResponse<>();
         try {
+            log.info(className);
             Class<?> clazz = Class.forName(className);
             Object[] parameters = rpcRequest.getArgs();
             Object serviceInstance = this.serviceMap.get(clazz.getName());

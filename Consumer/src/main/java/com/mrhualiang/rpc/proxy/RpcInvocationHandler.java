@@ -2,6 +2,8 @@ package com.mrhualiang.rpc.proxy;
 
 import com.mrhualiang.rpc.discovery.ServiceDiscovery;
 import com.mrhualiang.rpc.model.RpcRequest;
+import com.mrhualiang.rpc.model.RpcResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,6 +12,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.Socket;
 
+@Slf4j
 public class RpcInvocationHandler implements InvocationHandler {
 
     private String serviceName;
@@ -32,10 +35,10 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setClassName(method.getDeclaringClass().getName());
         rpcRequest.setMethodName(method.getName());
         //return handleNetty(rpcRequest);
-        return handleSocket(rpcRequest);
+        return handleSocket(rpcRequest).getResult();
     }
 
-    private Object handleSocket(RpcRequest rpcRequest) throws IOException, ClassNotFoundException {
+    private RpcResponse<Object> handleSocket(RpcRequest rpcRequest) throws IOException, ClassNotFoundException {
         String address = serviceDiscovery.discover(serviceName);
         //绑定端口启动netty客户端
         String[] add = address.split(":");
@@ -44,7 +47,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         oos.writeObject(rpcRequest);
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-        Object result = ois.readObject();
+        RpcResponse<Object> result = (RpcResponse<Object>) ois.readObject();
         return result;
     }
 }
