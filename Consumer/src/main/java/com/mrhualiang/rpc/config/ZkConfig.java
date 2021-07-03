@@ -18,7 +18,4 @@ public class ZkConfig {
     @Value("${Zk.timeout}")
     public String SESSION_TIMEOUT;
 
-    @Value("${Zk.defaultmsg}")
-    public String DEFAULT_MSG;
-
 }

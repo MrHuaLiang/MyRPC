@@ -1,4 +1,4 @@
-package com.mrhualiang.rpc.serialize.kyro;
+package com.mrhualiang.rpc.serialize.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -12,7 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 @Slf4j
-public class KyroSerializer implements Serializer {
+public class KryoSerializer implements Serializer {
 
     /**
      * Because Kryo is not thread safe. So, use ThreadLocal to store Kryo objects

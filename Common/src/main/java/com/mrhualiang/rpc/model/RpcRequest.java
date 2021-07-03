@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class RpcRequest implements Serializable {
+public class RpcRequest {
 
     private Integer id;
 

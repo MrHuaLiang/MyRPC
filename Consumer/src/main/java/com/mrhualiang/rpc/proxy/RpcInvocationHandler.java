@@ -1,12 +1,14 @@
 package com.mrhualiang.rpc.proxy;
 
 import com.mrhualiang.rpc.discovery.ServiceDiscovery;
+import com.mrhualiang.rpc.factory.SerializerFactory;
 import com.mrhualiang.rpc.model.RpcRequest;
 import com.mrhualiang.rpc.model.RpcResponse;
 import com.mrhualiang.rpc.model.ServiceInfo;
+import com.mrhualiang.rpc.serialize.Serializer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -16,6 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class RpcInvocationHandler implements InvocationHandler {
+
+    /**
+     * 序列化协议,默认kyro
+     */
+    @Value("${Serialization.protocol}")
+    private String protocol;
 
     private String serviceName;
 
@@ -44,17 +52,19 @@ public class RpcInvocationHandler implements InvocationHandler {
         return res.getResult();
     }
 
-    private RpcResponse<Object> handleSocket(RpcRequest rpcRequest) throws IOException, ClassNotFoundException {
+    private RpcResponse<Object> handleSocket(RpcRequest rpcRequest) throws Exception {
         ServiceInfo info = serviceDiscovery.discover(serviceName);
-        //log.info("选择的服务:{}",info);
         log.info("请求信息{}", rpcRequest);
         log.info("服务地址{}", info.getIp() + ":" + info.getPort());
         //通过socket发送RPCRequest给服务端并获取结果返回
         Socket socket = new Socket(info.getIp(), info.getPort());
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-        oos.writeObject(rpcRequest);
+        Serializer serializer = SerializerFactory.getSerializer(protocol);
+        byte[] bytes = serializer.serialize(rpcRequest);
+        oos.writeObject(bytes);
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-        RpcResponse<Object> result = (RpcResponse<Object>) ois.readObject();
+        byte[] bytes2 = (byte[]) ois.readObject();
+        RpcResponse<Object> result = serializer.deserialize(bytes2, RpcResponse.class);
         return result;
     }
 }

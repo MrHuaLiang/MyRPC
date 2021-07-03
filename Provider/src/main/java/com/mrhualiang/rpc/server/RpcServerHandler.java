@@ -1,8 +1,11 @@
 package com.mrhualiang.rpc.server;
 
+import com.mrhualiang.rpc.factory.SerializerFactory;
 import com.mrhualiang.rpc.model.RpcRequest;
 import com.mrhualiang.rpc.model.RpcResponse;
+import com.mrhualiang.rpc.serialize.Serializer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,7 +16,15 @@ import java.util.Map;
 
 @Slf4j
 public class RpcServerHandler implements Runnable {
+
+    /**
+     * 序列化协议,默认kyro
+     */
+    @Value("${Serialization.protocol}")
+    private String protocol;
+
     private Socket socket;
+
     private Map<String, Object> serviceMap;
 
     public RpcServerHandler(Map<String, Object> serviceMap, Socket socket) {
@@ -29,10 +40,13 @@ public class RpcServerHandler implements Runnable {
 
         try {
             ois = new ObjectInputStream(this.socket.getInputStream());
-            RpcRequest rpcRequest = (RpcRequest)ois.readObject();
+            byte[] bytes = (byte [])ois.readObject();
+            Serializer serializer = SerializerFactory.getSerializer(protocol);
+            RpcRequest rpcRequest = serializer.deserialize(bytes,RpcRequest.class);
             RpcResponse<Object> result = this.invoke(rpcRequest);
+            byte[] bytes2 = serializer.serialize(result);
             oos = new ObjectOutputStream(this.socket.getOutputStream());
-            oos.writeObject(result);
+            oos.writeObject(bytes2);
             oos.flush();
         } catch (Exception var13) {
             log.warn("处理请求发生异常,原因是{}",var13.getMessage());

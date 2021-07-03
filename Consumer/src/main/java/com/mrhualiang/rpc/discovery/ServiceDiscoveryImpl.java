@@ -4,6 +4,7 @@ import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import com.mrhualiang.rpc.model.ServiceInfo;
 import com.mrhualiang.rpc.util.ConvertUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -14,17 +15,24 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean {
+    /**
+     * 被删除的节点将在缓存中保留一定时间
+     */
+    @Value("${delay}")
+    private Integer time;
 
     private Map<String, List<ServiceInfo>> serviceMap = new HashMap<>();
 
@@ -47,7 +55,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
 
         try {
             log.info("尝试从本地缓存中获取服务信息");
-            if(serviceMap.get(serviceName) == null){
+            if (serviceMap.get(serviceName) == null) {
                 log.info("本地缓存中获取服务信息失败");
                 log.info("尝试从ZooKeeper中获取服务信息,路径为{}", nodePath);
                 serviceInfo = curatorFramework.getChildren().forPath(nodePath).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
@@ -55,7 +63,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
                 log.info("获取服务信息成功,加入本地缓存");
                 addServiceInfo(serviceInfo, serviceName);
                 log.info(serviceInfo + "");
-            }else{
+            } else {
                 log.info("成功从本地缓存中获取服务信息");
             }
             //动态发现服务节点变化，需要注册监听
@@ -78,16 +86,25 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
         pathChildrenCache.getListenable().addListener(new PathChildrenCacheListener() {
             @Override
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
-                if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
+                if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
                     log.info("服务节点增加,更新本地缓存");
                     serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
                     addServiceInfo(serviceInfo, serviceName);
-                }else if(pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED){
+                } else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
                     log.info("服务节点更新,更新本地缓存");
-                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());;
+                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
                     addServiceInfo(serviceInfo, serviceName);
-                }else{
-                    log.info("其他事件,不更新本地缓存");
+                } else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
+                    ScheduledExecutorService mScheduledExecutorService = Executors.newScheduledThreadPool(1);
+                    mScheduledExecutorService.schedule(new Runnable() {
+                        @SneakyThrows
+                        @Override
+                        public void run() {
+                            serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
+                            addServiceInfo(serviceInfo, serviceName);
+                        }
+                    }, time, TimeUnit.MINUTES);
+                    log.info("服务节点被删除,{}分钟后更新本地缓存", time);
                 }
             }
         });
