@@ -45,6 +45,28 @@ public class ServiceRegisterCenter implements IServiceRegister, InitializingBean
     }
 
     @Override
+    public void unregister(ServiceInfo serviceInfo) {
+        log.info("从ZooKeeper注销服务");
+        String servicePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceInfo.getName();
+        try {
+            //判断 /${registerPath}/${serviceName}节点是否存在，不存在无需删除
+            if (curatorFramework.checkExists().forPath(servicePath) == null) {
+                return;
+            }
+            //设置节点的value为对应的服务信息(临时节点)
+            String serviceInfoStr = servicePath + "/" + serviceInfo.getIp() + ":" + serviceInfo.getPort() + "," + serviceInfo.getWeight();
+            curatorFramework.delete().deletingChildrenIfNeeded().forPath(serviceInfoStr);
+            log.info("注销服务信息:{}", serviceInfoStr);
+        } catch (Exception e) {
+            log.warn("注销服务发生异常,原因是{}", e.getMessage());
+        }
+    }
+
+    /**
+     *   与ZooKeeper建立链接
+     * @throws Exception
+     */
+    @Override
     public void afterPropertiesSet() throws Exception {
         log.info("ZooKeeper地址为{}", zkConfig.ZK_IP + ":" + zkConfig.ZK_PORT);
         log.info("与ZooKeeper建立链接");

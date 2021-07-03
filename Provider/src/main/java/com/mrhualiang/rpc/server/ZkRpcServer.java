@@ -141,7 +141,7 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
     public void setApplicationContext(ApplicationContext context) {
         //从spring上下文中获取添加了RegisterService的注解的bean
         String[] beanNames = context.getBeanNamesForAnnotation(RpcService.class);
-        log.info("从spring上下文中获取添加了RegisterService的注解的服务,数量为{}", beanNames.length);
+        log.info("获取需要注册的服务,数量为{}", beanNames.length);
         for (String beanName : beanNames) {
             Object bean = context.getBean(beanName);
             RpcService annotation = bean.getClass().getAnnotation(RpcService.class);
