@@ -38,6 +38,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
 
     private List<ServiceInfo> serviceInfo;
 
+    private List<String> serviceName;
+
     private CuratorFramework curatorFramework;
 
     @Autowired
@@ -47,14 +49,17 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
     @Autowired
     private ZkConfig zkConfig;
 
-
+    /**
+     * 根据服务名获取服务信息
+     * @param serviceName
+     * @return
+     */
     @Override
     public ServiceInfo discover(String serviceName) {
         //根据serviceName获取对应的path
         String nodePath = zkConfig.REGISTER_NAMESPACE + "/" + serviceName;
 
         try {
-            log.info("尝试从本地缓存中获取服务信息");
             if (serviceMap.get(serviceName) == null) {
                 log.info("本地缓存中获取服务信息失败");
                 log.info("尝试从ZooKeeper中获取服务信息,路径为{}", nodePath);
@@ -72,6 +77,18 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             log.warn("服务发现异常,原因是{}", e.getMessage());
         }
         return loadBalance.doSelect(serviceMap.get(serviceName));
+    }
+
+    public List<String> discover() {
+        String nodePath = zkConfig.REGISTER_NAMESPACE;
+        try {
+            log.info("获取所有服务");
+            serviceName = curatorFramework.getChildren().forPath(nodePath);
+            serviceName.forEach(System.out::println);
+        } catch (Exception e) {
+            log.warn("获取服务异常,原因是{}", e.getMessage());
+        }
+        return serviceName;
     }
 
 
@@ -110,6 +127,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
         });
         try {
             pathChildrenCache.start();
+//            pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
         } catch (Exception e) {
             log.info("监听节点变化异常,原因是{}", e.getMessage());
         }

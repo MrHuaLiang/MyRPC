@@ -1,6 +1,7 @@
 package com.mrhualiang.rpc.annotation;
 
 import org.springframework.stereotype.Component;
+
 import java.lang.annotation.*;
 
 @Target({ElementType.TYPE})
@@ -11,9 +12,9 @@ public @interface RpcService {
 
     Class interfaceClass();
 
-    String serviceName () ;
+    String serviceName();
 
-    String port();
+    String port() default "8080";
 
     String weight();
 }
