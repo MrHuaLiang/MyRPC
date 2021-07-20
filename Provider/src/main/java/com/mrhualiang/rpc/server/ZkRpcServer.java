@@ -5,6 +5,7 @@ package com.mrhualiang.rpc.server;
  */
 
 import com.mrhualiang.rpc.annotation.RpcService;
+import com.mrhualiang.rpc.config.MyConfig;
 import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.model.ServiceInfo;
 import com.mrhualiang.rpc.register.IServiceRegister;

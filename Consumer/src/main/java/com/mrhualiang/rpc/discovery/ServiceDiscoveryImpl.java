@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc.discovery;
 
+import com.mrhualiang.rpc.config.MyConfig;
 import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import com.mrhualiang.rpc.model.ServiceInfo;
@@ -126,8 +127,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             }
         });
         try {
-            pathChildrenCache.start();
-//            pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
+            pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
         } catch (Exception e) {
             log.info("监听节点变化异常,原因是{}", e.getMessage());
         }

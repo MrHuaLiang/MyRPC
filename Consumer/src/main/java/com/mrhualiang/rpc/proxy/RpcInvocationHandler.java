@@ -47,7 +47,6 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setArgs(args);
         rpcRequest.setClassName(method.getDeclaringClass().getName());
         rpcRequest.setMethodName(method.getName());
-        //return handleNetty(rpcRequest);
         RpcResponse<Object> res = handleSocket(rpcRequest);
         return res.getResult();
     }

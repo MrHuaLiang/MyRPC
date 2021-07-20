@@ -1,10 +1,11 @@
 package com.mrhualiang.rpc.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ZkConfig {
+public class MyConfig {
 
     @Value("${Zk.ip}")
     public String ZK_IP;
@@ -17,5 +18,15 @@ public class ZkConfig {
 
     @Value("${Zk.timeout}")
     public String SESSION_TIMEOUT;
+
+    @Bean
+    public ZkConfig zkConfig(){
+        ZkConfig zkConfig = new ZkConfig();
+        zkConfig.setZK_IP(ZK_IP);
+        zkConfig.setZK_PORT(ZK_PORT);
+        zkConfig.setREGISTER_NAMESPACE(REGISTER_NAMESPACE);
+        zkConfig.setSESSION_TIMEOUT(SESSION_TIMEOUT);
+        return zkConfig;
+    }
 
 }
