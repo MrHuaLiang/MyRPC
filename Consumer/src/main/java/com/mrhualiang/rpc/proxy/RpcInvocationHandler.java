@@ -1,6 +1,7 @@
 package com.mrhualiang.rpc.proxy;
 
 import com.mrhualiang.rpc.discovery.ServiceDiscovery;
+import com.mrhualiang.rpc.factory.KryoSerializerFactory;
 import com.mrhualiang.rpc.factory.SerializerFactory;
 import com.mrhualiang.rpc.model.RpcRequest;
 import com.mrhualiang.rpc.model.RpcResponse;
@@ -58,7 +59,8 @@ public class RpcInvocationHandler implements InvocationHandler {
         //通过socket发送RPCRequest给服务端并获取结果返回
         Socket socket = new Socket(info.getIp(), info.getPort());
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-        Serializer serializer = SerializerFactory.getSerializer(protocol);
+        SerializerFactory factory = new KryoSerializerFactory();
+        Serializer serializer = factory.getSerializer();
         byte[] bytes = serializer.serialize(rpcRequest);
         oos.writeObject(bytes);
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());

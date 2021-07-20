@@ -1,5 +1,6 @@
 package com.mrhualiang.rpc.server;
 
+import com.mrhualiang.rpc.factory.KryoSerializerFactory;
 import com.mrhualiang.rpc.factory.SerializerFactory;
 import com.mrhualiang.rpc.model.RpcRequest;
 import com.mrhualiang.rpc.model.RpcResponse;
@@ -41,7 +42,8 @@ public class RpcServerHandler implements Runnable {
         try {
             ois = new ObjectInputStream(this.socket.getInputStream());
             byte[] bytes = (byte [])ois.readObject();
-            Serializer serializer = SerializerFactory.getSerializer(protocol);
+            SerializerFactory factory = new KryoSerializerFactory();
+            Serializer serializer = factory.getSerializer();
             RpcRequest rpcRequest = serializer.deserialize(bytes,RpcRequest.class);
             RpcResponse<Object> result = this.invoke(rpcRequest);
             byte[] bytes2 = serializer.serialize(result);
