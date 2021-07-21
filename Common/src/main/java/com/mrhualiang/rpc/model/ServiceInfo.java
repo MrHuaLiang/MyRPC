@@ -1,10 +1,8 @@
 package com.mrhualiang.rpc.model;
 
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
 public class ServiceInfo {
 
     private String name;
@@ -15,4 +13,13 @@ public class ServiceInfo {
 
     private Integer weight;
 
+    @Override
+    public String toString() {
+        return "{" +
+                "name='" + name + '\'' +
+                ", ip='" + ip + '\'' +
+                ", port=" + port +
+                ", weight=" + weight +
+                '}';
+    }
 }

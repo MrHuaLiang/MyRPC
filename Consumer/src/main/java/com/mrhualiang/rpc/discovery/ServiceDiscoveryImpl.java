@@ -1,10 +1,9 @@
 package com.mrhualiang.rpc.discovery;
 
-import com.mrhualiang.rpc.config.MyConfig;
 import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.loadBalance.LoadBalance;
 import com.mrhualiang.rpc.model.ServiceInfo;
-import com.mrhualiang.rpc.util.ConvertUtil;
+import com.mrhualiang.rpc.util.JsonUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -64,7 +63,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             if (serviceMap.get(serviceName) == null) {
                 log.info("本地缓存中获取服务信息失败");
                 log.info("尝试从ZooKeeper中获取服务信息,路径为{}", nodePath);
-                serviceInfo = curatorFramework.getChildren().forPath(nodePath).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
+                serviceInfo = curatorFramework.getChildren().forPath(nodePath).stream().map(s ->JsonUtil.String2JSON(s, ServiceInfo.class)).collect(Collectors.toList());
                 serviceInfo.forEach(list -> list.setName(serviceName));
                 log.info("获取服务信息成功,加入本地缓存");
                 addServiceInfo(serviceInfo, serviceName);
@@ -106,21 +105,21 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery, InitializingBean 
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
                 if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
                     log.info("服务节点增加,更新本地缓存");
-                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
+                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(s ->JsonUtil.String2JSON(s, ServiceInfo.class)).collect(Collectors.toList());
                     addServiceInfo(serviceInfo, serviceName);
                 } else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
                     log.info("服务节点更新,更新本地缓存");
-                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
+                    serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(s ->JsonUtil.String2JSON(s, ServiceInfo.class)).collect(Collectors.toList());
                     addServiceInfo(serviceInfo, serviceName);
                 } else if (pathChildrenCacheEvent.getType() == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
                     ScheduledExecutorService mScheduledExecutorService = Executors.newScheduledThreadPool(1);
-                    mScheduledExecutorService.schedule(new Runnable() {
-                        @SneakyThrows
-                        @Override
-                        public void run() {
-                            serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(ConvertUtil::string2Info).collect(Collectors.toList());
-                            addServiceInfo(serviceInfo, serviceName);
+                    mScheduledExecutorService.schedule(() -> {
+                        try {
+                            serviceInfo = curatorFramework.getChildren().forPath(path).stream().map(s ->JsonUtil.String2JSON(s, ServiceInfo.class)).collect(Collectors.toList());
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
+                        addServiceInfo(serviceInfo, serviceName);
                     }, time, TimeUnit.MINUTES);
                     log.info("服务节点被删除,{}分钟后更新本地缓存", time);
                 }

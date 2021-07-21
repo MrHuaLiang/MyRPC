@@ -5,10 +5,9 @@ package com.mrhualiang.rpc.server;
  */
 
 import com.mrhualiang.rpc.annotation.RpcService;
-import com.mrhualiang.rpc.config.MyConfig;
 import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.model.ServiceInfo;
-import com.mrhualiang.rpc.register.IServiceRegister;
+import com.mrhualiang.rpc.register.ServiceRegister;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -35,16 +34,13 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
     @Resource
     private ZkConfig zkConfig;
 
-    @Value("${server.ip}")
-    private String ip;
-
     @Value("${server.port}")
     private String port;
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 
     @Autowired
-    private IServiceRegister registerCenter;
+    private ServiceRegister registerCenter;
 
     /**
      * @key 对应的接口类名
@@ -60,7 +56,6 @@ public class ZkRpcServer implements ApplicationContextAware, InitializingBean {
      */
     @Override
     public void afterPropertiesSet() throws Exception {
-        //nettyRpc();
         socketRpc();
     }
 

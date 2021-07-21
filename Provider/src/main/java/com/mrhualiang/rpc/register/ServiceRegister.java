@@ -2,7 +2,7 @@ package com.mrhualiang.rpc.register;
 
 import com.mrhualiang.rpc.model.ServiceInfo;
 
-public interface IServiceRegister {
+public interface ServiceRegister {
 
     void register(ServiceInfo serviceInfo);
 

@@ -1,8 +1,8 @@
 package com.mrhualiang.rpc.register;
 
-import com.mrhualiang.rpc.config.MyConfig;
 import com.mrhualiang.rpc.config.ZkConfig;
 import com.mrhualiang.rpc.model.ServiceInfo;
+import com.mrhualiang.rpc.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class ServiceRegisterCenter implements IServiceRegister, InitializingBean {
+public class ServiceRegisterCenter implements ServiceRegister, InitializingBean {
 
     @Autowired
         private ZkConfig zkConfig;
@@ -37,7 +37,7 @@ public class ServiceRegisterCenter implements IServiceRegister, InitializingBean
                 curatorFramework.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(servicePath, "0".getBytes());
             }
             //设置节点的value为对应的服务信息(临时节点)
-            String serviceInfoStr = servicePath + "/" + serviceInfo.getIp() + ":" + serviceInfo.getPort() + "," + serviceInfo.getWeight();
+            String serviceInfoStr = servicePath + "/" + JsonUtil.JSON2String(serviceInfo);
             String zkNode = curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(serviceInfoStr, "0".getBytes());
             log.info("服务注册信息:{}", zkNode);
         } catch (Exception e) {
