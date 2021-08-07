@@ -4,7 +4,9 @@ import com.mrhualiang.rpc.factory.KryoAbstractSerializerFactory;
 import com.mrhualiang.rpc.factory.AbstractSerializerFactory;
 import com.mrhualiang.rpc.model.RpcRequest;
 import com.mrhualiang.rpc.model.RpcResponse;
+import com.mrhualiang.rpc.serialize.SerializeContext;
 import com.mrhualiang.rpc.serialize.Serializer;
+import com.mrhualiang.rpc.serialize.kryo.KryoSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -42,8 +44,7 @@ public class RpcServerHandler implements Runnable {
         try {
             ois = new ObjectInputStream(this.socket.getInputStream());
             byte[] bytes = (byte [])ois.readObject();
-            AbstractSerializerFactory factory = new KryoAbstractSerializerFactory();
-            Serializer serializer = factory.getSerializer();
+            SerializeContext serializer = new SerializeContext(new KryoSerializer());
             RpcRequest rpcRequest = serializer.deserialize(bytes,RpcRequest.class);
             RpcResponse<Object> result = this.invoke(rpcRequest);
             byte[] bytes2 = serializer.serialize(result);

@@ -6,7 +6,9 @@ import com.mrhualiang.rpc.factory.AbstractSerializerFactory;
 import com.mrhualiang.rpc.model.RpcRequest;
 import com.mrhualiang.rpc.model.RpcResponse;
 import com.mrhualiang.rpc.model.ServiceInfo;
+import com.mrhualiang.rpc.serialize.SerializeContext;
 import com.mrhualiang.rpc.serialize.Serializer;
+import com.mrhualiang.rpc.serialize.protostuff.ProtostuffSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -59,8 +61,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         //通过socket发送RPCRequest给服务端并获取结果返回
         Socket socket = new Socket(info.getIp(), info.getPort());
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-        AbstractSerializerFactory factory = new KryoAbstractSerializerFactory();
-        Serializer serializer = factory.getSerializer();
+        SerializeContext serializer = new SerializeContext(new ProtostuffSerializer());
         byte[] bytes = serializer.serialize(rpcRequest);
         oos.writeObject(bytes);
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
